@@ -1,0 +1,101 @@
+int[][] sudoku;
+int w, h;
+
+void setup(){
+  size(900, 950);
+  textSize(100);
+  background(255);
+  sudoku = new int[9][9];
+  w = 900/9;
+  h = 900/9;
+  
+  for (int i = 0; i < 9; i++) {
+    for (int j = 0; j < 9; j++) {
+      sudoku[i][j] = 0;
+    }
+  }
+  solveSudoku();
+}
+
+void draw(){
+  grid();
+  int i = 0;
+  while(i < 9){
+    int c = 0;
+    while(c < 9){
+      fill(50);
+      text(sudoku[i][c], 25+c*w, 33+h+i*h);
+      c++;
+    }
+    i++;
+  }
+}
+
+void grid(){
+  strokeWeight(3);
+  stroke(150);
+  int i = 0;
+  while(i < 9){
+    int c = 0;
+    while(c < 9){
+      fill(255, 255, 255, 0);
+      rect(c*w, 50+i*h, w, h);
+      c++;
+    }
+    i++;
+  }
+  strokeWeight(6);
+  stroke(0);
+  i = 0;
+  while(i < 3){
+    int c = 0;
+    while(c < 9){
+      fill(255, 255, 255, 0);
+      rect(c*w*3, 50+i*h*3, w*3, h*3);
+      c++;
+    }
+    i++;
+  }
+}
+
+boolean check(int row, int col, int num) {
+  for (int i = 0; i < 9; i++) {
+    if (sudoku[row][i] == num) {
+      return false;
+    }
+  }
+  for (int i = 0; i < 9; i++) {
+    if (sudoku[i][col] == num){
+      return false;
+    }
+  }
+  int boxRow = row / 3;
+  int boxCol = col / 3;
+  for (int i = boxRow * 3; i < boxRow * 3 + 3; i++) {
+    for (int j = boxCol * 3; j < boxCol * 3 + 3; j++) {
+      if (sudoku[i][j] == num) {
+        return false;
+      }
+    }
+  }
+  return true;   
+}
+
+boolean solveSudoku() {
+  for (int row = 0; row < 9; row++) {
+    for (int col = 0; col < 9; col++) {
+      if (sudoku[row][col] == 0) {
+        for (int num = 1; num <= 9; num++) {
+          if (check(row, col, num)) {
+            sudoku[row][col] = num;
+            if (solveSudoku())   
+ return true;
+            sudoku[row][col] = 0;
+          }
+        }
+        return false;
+      }
+    }
+  }
+  return true;   
+}
