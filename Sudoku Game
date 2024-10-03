@@ -1,11 +1,13 @@
-int[][] sudoku;
-int w, h;
+int[][] sudoku = new int[9][9];
+int[] blank = new int [9]; // how many blank
+int[][] whereBlank = new int[9][3]; // where are that blank
+int[] num = new int[9];
+boolean howHard = false;
+int w, h, clickx, clicky, numRandom;
 
 void setup(){
   size(900, 950);
-  textSize(100);
   background(255);
-  sudoku = new int[9][9];
   w = 900/9;
   h = 900/9;
   
@@ -15,10 +17,12 @@ void setup(){
     }
   }
   solveSudoku();
+  whatRandom();
 }
 
 void draw(){
   grid();
+  textSize(100);
   int i = 0;
   while(i < 9){
     int c = 0;
@@ -56,6 +60,17 @@ void grid(){
     }
     i++;
   }
+  strokeWeight(4);
+  textSize(20);
+  i = 0;
+  while (i < 2){
+    fill(255, 255, 255, 0);
+    rect(10+i*130, 5, 120, 35);
+    i++;
+  }
+  fill(0);
+  text("Easy", 50, 30);
+  text("Medium", 166, 30);
 }
 
 boolean check(int row, int col, int num) {
@@ -98,4 +113,93 @@ boolean solveSudoku() {
     }
   }
   return true;   
+}
+
+void mousePressed(){
+  clickx = mouseX;
+  clicky = mouseY;
+  
+  if (5 < clicky && clicky < 41 && 10 < clickx && clickx < 261){
+    if (10 < clickx && clickx < 131){
+      howHard = false;
+      whatRandom();
+    } else if ( 130 < clickx && clickx < 261){
+      howHard = true;
+      whatRandom();
+    }
+  }
+  
+}
+
+void whatRandom(){
+  int i = 0;
+  while (i < 9){
+    if (howHard == false){
+      numRandom = int(random(7, 8));
+    } else if (howHard == true){
+      numRandom = int(random(6, 7));
+    }
+    blank[i] = numRandom;
+    println(blank[i]);
+    i++;
+  }
+  int c = 0;
+  while (c < 9){
+    i = 0;
+    int i0 = 0;
+    num = new int[9];
+    while(i0 < 9){
+        num[i0] = i0;
+        i0++;
+      }
+    while (i < blank[i]){
+      int rnum = int(random(0, 8-i));
+      num = removeAtIndex(num, rnum);
+      i++;
+    }
+    whereBlank[c] = new int[num.length];
+    i = 0;
+    int k = 0;
+    while (k < num.length){
+      if (k == num.length -1){
+        int randoma = int(random(0, 8));
+        while (randoma == whereBlank[c][k-1]){
+          randoma = int(random(0, 8));
+        }
+        if (num.length == 3){
+          while (randoma == whereBlank[c][k-2] | randoma == whereBlank[c][k-1]){
+            randoma = int(random(0, 8));
+            println("aa");
+          }
+        }
+        whereBlank[c][k] = randoma;
+        println("a");
+      } else {
+        whereBlank[c][k] = num[k];
+        println("b");
+      }
+      k++;
+    }
+    c++;
+  }
+  println("complete");
+  println(whereBlank[8]);
+}
+
+int[] removeAtIndex(int[] a, int i) {
+  int[] newA = new int[a.length - 1];
+  int c = 0;
+  int k = 0;
+  while (c < a.length) {
+    if (c == i) {
+      c++;
+      newA[k] = a[c];
+    } else{
+      newA[k] = a[c];
+    }
+    k++;
+    c++;
+  }
+  println(newA);
+  return newA;
 }
