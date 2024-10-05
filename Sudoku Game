@@ -1,13 +1,14 @@
-int[][] sudoku = new int[9][9];
+int[][] sudoku = new int[9][9]; // all sudoku number
 int[] blank = new int [9]; // how many blank
 int[][] whereBlank = new int[9][3]; // where are that blank
-int[] num = new int[9];
-boolean howHard = false;
-int w, h, clickx, clicky, numRandom;
+int[] num = new int[9]; // use in whatRandom and removeIndex
+int [][] input = new int[9][9];
+boolean isItX; //check click x is in whereBlank or not
+boolean howHard = false; // easy or medium mode
+int w, h, clickx, clicky, numRandom, realX;
 
 void setup(){
   size(900, 950);
-  background(255);
   w = 900/9;
   h = 900/9;
   
@@ -16,12 +17,21 @@ void setup(){
       sudoku[i][j] = 0;
     }
   }
+  int i = 0;
+  while (i < 9){
+    int c = 0;
+    while (c < 3){
+      input[i][c] = 0;
+      c++;
+    }
+    i++;
+  }
   solveSudoku();
   whatRandom();
 }
 
 void draw(){
-  grid();
+  background(255);
   textSize(100);
   int i = 0;
   while(i < 9){
@@ -29,6 +39,33 @@ void draw(){
     while(c < 9){
       fill(50);
       text(sudoku[i][c], 25+c*w, 33+h+i*h);
+      c++;
+    }
+    i++;
+  }
+  makeItBlank();
+  if (isItX() == true){
+        fill(255,0,30,60);
+        rect(clickx/100*w, 50 + (clicky - 50)/100*h, w, h);
+      }
+  grid();
+}
+
+void makeItBlank(){
+  strokeWeight(1);
+  int i = 0;
+  while (i < 9){
+    int c = 0;
+    while (c < whereBlank[i].length){
+      fill(255);
+      rect(whereBlank[i][c]*w, 50 + i*h, w, h);
+      if (input[i][c] == 0){
+        fill(255);
+        text(input[i][c], 25 + whereBlank[i][c]*w, 133 + i*h);
+      }else if (input[i][c] > 0){
+        fill(0,0,255,255);
+        text(input[i][c], 25 + whereBlank[i][c]*w, 133 + i*h);
+      }
       c++;
     }
     i++;
@@ -128,7 +165,71 @@ void mousePressed(){
       whatRandom();
     }
   }
-  
+}
+
+void keyPressed(){
+  int inNum = key;
+  if (inNum == 49 | inNum == 50 | inNum == 51 | inNum == 52 | inNum == 53 | inNum == 54 | inNum == 55 | inNum == 56 | inNum == 57){
+    if (inNum == 49){
+      inNum = 1;
+    }else if (inNum == 50){
+      inNum = 2;
+    }else if (inNum == 51){
+      inNum = 3;
+    }else if (inNum == 52){
+      inNum = 4;
+    }else if (inNum == 53){
+      inNum = 5;
+    }else if (inNum == 54){
+      inNum = 6;
+    }else if (inNum == 55){
+      inNum = 7;
+    }else if (inNum == 56){
+      inNum = 8;
+    }else if (inNum == 57){
+      inNum = 9;
+    }
+  } else{
+    inNum = 0;
+  }
+  if (isItX() == true){
+    input[(clicky - 50)/100][realX()] = inNum;
+    println((clicky - 50)/100, realX());
+  }
+}
+
+int realX(){
+  int i = 0;
+  while (i < whereBlank[(clicky - 50)/100].length){
+    i++;
+  }
+  int c = 0;
+  while (c < i){
+    if (clickx/100 == whereBlank[(clicky - 50)/100][c]){
+      return c;
+    }
+    c++;
+  }
+  return -1;
+}
+
+boolean isItX(){
+  int i = 0;
+  while (i < 9){
+    int count = 0;
+    while (count < whereBlank[i].length){
+      count++;
+    }
+    int c = 0;
+    while (c < count){
+      if ((clicky-50)/100 == i && clickx/100 == whereBlank[i][c]){
+        return true;
+      }
+      c++;
+    }
+  i++;
+  }
+  return false;
 }
 
 void whatRandom(){
@@ -140,7 +241,6 @@ void whatRandom(){
       numRandom = int(random(6, 7));
     }
     blank[i] = numRandom;
-    println(blank[i]);
     i++;
   }
   int c = 0;
@@ -154,7 +254,7 @@ void whatRandom(){
       }
     while (i < blank[i]){
       int rnum = int(random(0, 8-i));
-      num = removeAtIndex(num, rnum);
+      num = removeIndex(num, rnum);
       i++;
     }
     whereBlank[c] = new int[num.length];
@@ -169,24 +269,19 @@ void whatRandom(){
         if (num.length == 3){
           while (randoma == whereBlank[c][k-2] | randoma == whereBlank[c][k-1]){
             randoma = int(random(0, 8));
-            println("aa");
           }
         }
         whereBlank[c][k] = randoma;
-        println("a");
       } else {
         whereBlank[c][k] = num[k];
-        println("b");
       }
       k++;
     }
     c++;
   }
-  println("complete");
-  println(whereBlank[8]);
 }
 
-int[] removeAtIndex(int[] a, int i) {
+int[] removeIndex(int[] a, int i) {
   int[] newA = new int[a.length - 1];
   int c = 0;
   int k = 0;
@@ -200,6 +295,5 @@ int[] removeAtIndex(int[] a, int i) {
     k++;
     c++;
   }
-  println(newA);
   return newA;
 }
