@@ -5,7 +5,7 @@ int[] num = new int[9]; // use in whatRandom and removeIndex
 int [][] input = new int[9][9];
 boolean isItX; //check click x is in whereBlank or not
 boolean howHard = false; // easy or medium mode
-int w, h, clickx, clicky, numRandom, realX;
+int w, h, clickx, clicky, numRandom, realX, score;
 
 void setup(){
   size(900, 950);
@@ -17,6 +17,12 @@ void setup(){
       sudoku[i][j] = 0;
     }
   }
+  input();
+  solveSudoku();
+  whatRandom();
+}
+
+int[][] input(){ // setup input
   int i = 0;
   while (i < 9){
     int c = 0;
@@ -26,8 +32,7 @@ void setup(){
     }
     i++;
   }
-  solveSudoku();
-  whatRandom();
+  return input;
 }
 
 void draw(){
@@ -105,9 +110,17 @@ void grid(){
     rect(10+i*130, 5, 120, 35);
     i++;
   }
+  i = 0;
+  while (i < 2){
+    rect(770-i*130, 5, 120, 35);
+    i++;
+  }
   fill(0);
   text("Easy", 50, 30);
   text("Medium", 166, 30);
+  text("Save", 810, 30);
+  text("Load", 679, 30);
+  text("You got "+score+" have "+scoreMax()+" left", 300, 30);
 }
 
 boolean check(int row, int col, int num) {
@@ -159,9 +172,13 @@ void mousePressed(){
   if (5 < clicky && clicky < 41 && 10 < clickx && clickx < 261){
     if (10 < clickx && clickx < 131){
       howHard = false;
+      score = 0;
+      input();
       whatRandom();
     } else if ( 130 < clickx && clickx < 261){
       howHard = true;
+      score = 0;
+      input();
       whatRandom();
     }
   }
@@ -194,7 +211,7 @@ void keyPressed(){
   }
   if (isItX() == true){
     input[(clicky - 50)/100][realX()] = inNum;
-    println((clicky - 50)/100, realX());
+    checkAns();
   }
 }
 
@@ -216,12 +233,8 @@ int realX(){
 boolean isItX(){
   int i = 0;
   while (i < 9){
-    int count = 0;
-    while (count < whereBlank[i].length){
-      count++;
-    }
     int c = 0;
-    while (c < count){
+    while (c < whereBlank[i].length){
       if ((clicky-50)/100 == i && clickx/100 == whereBlank[i][c]){
         return true;
       }
@@ -232,7 +245,7 @@ boolean isItX(){
   return false;
 }
 
-void whatRandom(){
+void whatRandom(){ // find where number should be blank grid to input
   int i = 0;
   while (i < 9){
     if (howHard == false){
@@ -282,18 +295,82 @@ void whatRandom(){
 }
 
 int[] removeIndex(int[] a, int i) {
-  int[] newA = new int[a.length - 1];
-  int c = 0;
-  int k = 0;
-  while (c < a.length) {
-    if (c == i) {
+    int[] newA = new int[a.length - 1];
+    int c = 0;
+    int k = 0;
+    while (c < a.length) {
+      if (c == i) {
+        c++;
+        newA[k] = a[c];
+      } else{
+        newA[k] = a[c];
+      }
+      k++;
       c++;
-      newA[k] = a[c];
-    } else{
-      newA[k] = a[c];
     }
-    k++;
-    c++;
+    return newA;
+}
+
+void checkAns(){
+  int i = 0;
+  while (i < whereBlank.length){
+    int c = 0;
+    while (c < whereBlank[i].length){
+      if (input[i][c] == sudoku[i][whereBlank[i][c]]){
+        whereBlank[i] = removeCheck(whereBlank[i], c);
+        input[i][c] = 0;
+        score++;
+      }
+      c++;
+    }
+    i++;
   }
-  return newA;
+}
+
+int[] removeCheck(int[] a, int i) {
+  if (a.length == 1){
+    int[] newA = new int[0];
+    return newA;
+  }else if (a.length == 2){
+    int[] newA = new int[1];
+    if (i == 1){
+      i = 0;
+    } else {
+      i = 1;
+    }
+    newA[0] = a[i];
+    return newA;
+  }else {
+    println(i);
+    int[] newA = new int[a.length - 1];
+    int c = 0;
+    int k = 0;
+    while (c < a.length) {
+      if (c == i && i == 3){
+        newA[k] = a[c];
+      }else if (c == i) {
+        c++;
+        newA[k] = a[c];
+      }else {
+        newA[k] = a[c];
+      }
+      k++;
+      c++;
+    }
+    return newA;
+  }
+}
+
+int scoreMax(){
+  int count = 0;
+  int i = 0;
+  while (i < 9){
+    int c = 0;
+    while (c < whereBlank[i].length){
+      count++;
+      c++;
+    }
+    i++;
+  }
+  return count;
 }
