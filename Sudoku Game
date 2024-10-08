@@ -52,7 +52,7 @@ void draw(){
   }
   makeItBlank();
   if (isItX() == true){
-        fill(255,0,30,60);
+        fill(30,0,255,30);
         rect(clickx/100*w, 50 + (clicky - 50)/100*h, w, h);
       }
   grid();
@@ -195,24 +195,26 @@ int[][] shuffleS(int[][] a){
 void mousePressed(){
   clickx = mouseX;
   clicky = mouseY;
-  
+  fill(0);
   if (5 < clicky && clicky < 41 && 10 < clickx && clickx < 890){
     if (10 < clickx && clickx < 131){
       howHard = false;
       score = 0;
       input();
       solveSudoku();
-    } else if (130 < clickx && clickx < 261){
+      rect(10, 5, 120, 35);
+    } else if (140 < clickx && clickx < 261){
       howHard = true;
       score = 0;
       input();
       solveSudoku();
+      rect(140, 5, 120, 35);
     } else if (770 < clickx && clickx < 890){
-      println("save");
       saveGame();
+      rect(770, 5, 120, 35);
     } else if (640 < clickx && clickx < 760){
-      println("load");
-      //loadGame();
+      loadGame();
+      rect(640, 5, 120, 35);
     }
   }
 }
@@ -248,7 +250,7 @@ void keyPressed(){
   }
 }
 
-int realX(){
+int realX(){ //make clicky to true x (it would be same position as whereBlank)
   int i = 0;
   while (i < whereBlank[(clicky - 50)/100].length){
     i++;
@@ -263,7 +265,7 @@ int realX(){
   return -1;
 }
 
-boolean isItX(){
+boolean isItX(){ //check clicky in correct area
   int i = 0;
   while (i < 9){
     int c = 0;
@@ -278,13 +280,13 @@ boolean isItX(){
   return false;
 }
 
-void whatRandom(){ // find where number should be blank grid to input
+void whatRandom(){ // find where number should be blank grid(to input)
   int i = 0;
   while (i < 9){
     if (howHard == false){
-      numRandom = int(random(7, 8));
+      numRandom = int(random(7, 9)); //random 7,8
     } else if (howHard == true){
-      numRandom = int(random(6, 7));
+      numRandom = int(random(6, 8)); //random 6,7
     }
     blank[i] = numRandom;
     i++;
@@ -298,8 +300,8 @@ void whatRandom(){ // find where number should be blank grid to input
         num[i0] = i0;
         i0++;
       }
-    while (i < blank[i]){
-      int rnum = int(random(0, 8-i));
+    while (i < blank[c]){
+      int rnum = int(random(0, 9-i));
       num = removeIndex(num, rnum);
       i++;
     }
@@ -308,13 +310,13 @@ void whatRandom(){ // find where number should be blank grid to input
     int k = 0;
     while (k < num.length){
       if (k == num.length -1){
-        int randoma = int(random(0, 8));
-        while (randoma == whereBlank[c][k-1]){
-          randoma = int(random(0, 8));
+        int randoma = int(random(0, 9));
+        while (k > 0 && randoma == whereBlank[c][k-1]){ //
+          randoma = int(random(0, 9));
         }
         if (num.length == 3){
           while (randoma == whereBlank[c][k-2] | randoma == whereBlank[c][k-1]){
-            randoma = int(random(0, 8));
+            randoma = int(random(0, 9));
           }
         }
         whereBlank[c][k] = randoma;
@@ -331,10 +333,10 @@ int[] removeIndex(int[] a, int i) {
     int[] newA = new int[a.length - 1];
     int c = 0;
     int k = 0;
-    while (c < a.length) {
+    while (k < a.length - 1) {
       if (c == i) {
         c++;
-        newA[k] = a[c];
+        newA[k] = a[c]; //
       } else{
         newA[k] = a[c];
       }
@@ -440,21 +442,49 @@ void saveGame(){
   writer = createWriter(filename);
   int i = 0;
   while (i < 9){
-    String linein = join(sudokuA[i], " ");
-    writer.println(linein);
+    String lineIn = join(sudokuA[i], " ");
+    writer.println(lineIn);
     i++;
   }
   i = 0;
   while (i < 9){
-    String linein = join(inputA[i], " ");
-    writer.println(linein);
+    String lineIn = join(inputA[i], " ");
+    writer.println(lineIn);
     i++;
   }
   i = 0;
   while (i < 9){
-    String linein = join(whereBlankA[i], " ");
-    writer.println(linein);
+    String lineIn = join(whereBlankA[i], " ");
+    writer.println(lineIn);
     i++;
   }
   writer.close();
+}
+
+void loadGame() {
+  String filename = "save_sudoku.txt";
+  String[] lineOut = loadStrings(filename);
+  String[][] sudokuA = new String[9][9];
+  String[][] inputA = new String[9][9];
+  String[][] whereBlankA = new String[9][];
+  if (lineOut == null || lineOut.length < 27) {
+    return;
+  }
+  for (int i = 0; i < 9; i++){
+    sudokuA[i] = split(lineOut[i], " ");
+  }
+  for (int i = 9; i < 18; i++){
+    inputA[i-9] = split(lineOut[i], " ");
+  }
+  for (int i = 18; i < 27; i++){
+    if (lineOut[i].trim().isEmpty()){
+      whereBlankA[i-18] = new String[0];
+      i++;
+    } else{
+      whereBlankA[i-18] = split(lineOut[i], " ");
+    }
+  }
+  sudoku = StrInt(sudokuA);
+  input = StrInt(inputA);
+  whereBlank = StrInt(whereBlankA);
 }
